@@ -53,6 +53,7 @@ const Form = () => {
     const [shipping,showShipping] = useState(false)
     const [variantPrice, setVariantPrice] = useState(0);
     const [variantRegion, setVariantRegion] = useState('');
+    const [authToken, setAuthToken] = useState(null);
 
     const handleOptionChange = (index, field, value) => {
         const updatedOptions = [...productsOption];
@@ -266,36 +267,83 @@ const Form = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(formData),
+          body: JSON.stringify({ token: authToken, data: formData }),
         });
         console.log('Response:', response.data);
         console.log('Form Data:', formData);
     };
 
-    const fetchRegions = async () => {
+  // Function to fetch regions
+  const fetchRegions = async () => {
+    if (!authToken) return; // Ensure token is available before making the request
+
+    try {
+      const response = await fetch("https://api-mzml.ovooro.com/store/regions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ token: authToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setRegions(data.regions);
+      console.log('Regions fetched:', data);
+    } catch (error) {
+      console.error('Error fetching regions:', error);
+    }
+  };
+    
+
+    const getAuthorizationToken = async()=> {
       try {
-        const response = await fetch("https://api-mzml.ovooro.com/store/regions", {
-          method: "GET",
+        const response = await fetch("https://api-mzml.ovooro.com/admin/auth/token", {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          body: JSON.stringify({
+            email: "admin@medusa-test.com",
+            password: "supersecret"
+          }),
         });
           if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
     
         const data = await response.json();
-        setRegions(data.regions);
+        setAuthToken(data.access_token);
+        localStorage.setItem('access_token', data.access_token);
         console.log('Response data:', data);
       } catch (error) {
         console.error('Error fetching regions:', error);
       }
-    };
-    
+    }
 
-    useEffect(()=> {
-        fetchRegions()
-    }, [])
+  // Fetch the token when the component mounts
+  useEffect(() => {
+    getAuthorizationToken();
+  }, []);
+
+  // Fetch regions when authToken is set
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      setAuthToken(token);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (authToken) {
+      fetchRegions();
+    }
+  }, [authToken]);
+
+
 
     return (
 
