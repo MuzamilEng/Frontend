@@ -119,7 +119,7 @@ const Form = () => {
     formData.append("image", thumbnailImage);
 
     try {
-      const response = await fetch("https://api-mzml.ovooro.com/store/thumbnail", {
+      const response = await fetch("http://localhost:9000/store/thumbnail", {
         method: "POST",
         // mode: "no-cors",
         body: formData,
@@ -131,7 +131,7 @@ const Form = () => {
       }
 
       const result = await response.json();
-      setThumbnailUrl(`https://api-mzml.ovooro.com${result.url}`);
+      setThumbnailUrl(`http://localhost:9000${result.url}`);
       console.log("Image uploaded successfully:", result);
       // Optionally, you can set some state here to reflect the uploaded image
     } catch (error) {
@@ -150,7 +150,7 @@ const Form = () => {
     files.forEach(file => formData.append("images", file)); // 'images' matches the field name in the multer config
 
     try {
-      const response = await fetch("https://api-mzml.ovooro.com/store/media", {
+      const response = await fetch("http://localhost:9000/store/media", {
         method: "POST",
         body: formData,
         referrerPolicy: "no-referrer" // This can help with strict CORS policies in dev
@@ -237,13 +237,13 @@ const Form = () => {
             thumbnail: thumbnailUrl || "https://via.placeholder.com/150",
             handle: e.target.title.value.toLowerCase().replace(/\s+/g, '-'),
             status: "draft",
-            type: {
-                value: "test-type",
-                id: "type_01H8ZHGKXYZC5F9H2YTJ4G1HYJ"
-            },
+            // type: {
+            //     value: "test-type",
+            //     id: "type_01H8ZHGKXYZC5F9H2YTJ4G1HYJ"
+            // },
             sales_channels: [
                 {
-                    id: "sc_01JBBS0AGHZYVAGT4AR4REFQES"
+                    id: "sc_01J96N7QVWPYH2E6V16EMMTAZ9"
                 }
             ],
             options: productsOption.map(opt => ({
@@ -262,7 +262,7 @@ const Form = () => {
             }
         };
 
-      const response =  await fetch("https://api-mzml.ovooro.com/store/custom", {
+      const response =  await fetch("http://localhost:9000/store/custom", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -278,7 +278,7 @@ const Form = () => {
     if (!authToken) return; // Ensure token is available before making the request
 
     try {
-      const response = await fetch("https://api-mzml.ovooro.com/store/regions", {
+      const response = await fetch("http://localhost:9000/store/regions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
