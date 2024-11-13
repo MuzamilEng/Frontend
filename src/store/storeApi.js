@@ -6,44 +6,29 @@ export const storeApi = createApi({
  
 
   endpoints: (builder) => ({
-    createBooking: builder.mutation({
-      query: (data) => ({
-        url: "/api/v1/booking",
-        method: "POST",
-        body: data,
-      }),
-      // invalidatesTags:['booking']
-    }),
-    getBookingDetail: builder.query({
+    getProducts:builder.query({
       query: () => ({
-        url: `/api/v1/bookingDetail`,
+        url: "/store/products",
         method: "GET",
       }),
-      providesTags:['booking']
+      providesTags:['products']
     }),
-    avalbility: builder.mutation({
+    getProductById: builder.query({
+      query: (id) => ({
+        url: `/store/products/${id}`,
+        method: "GET",
+      }),
+      providesTags:['products']
+    }),
+    updateProduct: builder.mutation({
       query: (data) => ({
-        url: "/api/v1/availability",
+        url: `/admin/products/${data.id}`,
         method: "POST",
         body: data,
       }),
-    }),
-    approvebooking: builder.mutation({
-      query: (data) => ({
-        url: "/api/v1/approve-booking",
-        method: "POST",
-        body: data,
-      }),
-      invalidatesTags:['booking']
-    }),
-    checkAvailibility:builder.mutation({
-      query: (data) => ({
-        url: "/api/v1/check-availibility",
-        method: "POST",
-        body: data,
-      }),
+      invalidatesTags:['products']
     })
   }),
 });
 
-export const { useCreateBookingMutation,useAvalbilityMutation,useGetBookingDetailQuery ,useApprovebookingMutation,useCheckAvailibilityMutation} = storeApi;
+export const {useGetProductsQuery,useGetProductByIdQuery,useUpdateProductMutation} = storeApi;

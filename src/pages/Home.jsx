@@ -5,6 +5,9 @@ import ImagesForm from './ImagesForm';
 import VariantForm from './VariantForm';
 import { PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import Layout from '../layout/layout';
+import { useLocation, useParams } from 'react-router-dom';
+import { useGetProductByIdQuery, useUpdateProductMutation } from '../store/storeApi';
 
 
 const Form = () => {
@@ -30,7 +33,16 @@ const Form = () => {
           placeholder: 'Short Description',
         }
     ];
+    const location = useLocation(); // Get the current location object
 
+  // Use URLSearchParams to parse the query parameters from the location's search string
+  const queryParams = new URLSearchParams(location.search);
+  
+  // Extract specific query parameters
+  const id = queryParams.get('id'); // "shoes"
+  const { isLoading:loadin, data: productData } = useGetProductByIdQuery(id);
+console.log(productData?.product,'sproduct data')
+    const [updateProduct,{isError,isLoading}] = useUpdateProductMutation()
     const [productsOption, setProductOptions] = useState([{ title: '', values: [''] }]);
     const [variants, setVariants] = useState([]);
     const [thumbnailUrl, setThumbnailUrl] = useState(null);
@@ -243,7 +255,7 @@ const Form = () => {
             // },
             sales_channels: [
                 {
-                    id: "sc_01J96N7QVWPYH2E6V16EMMTAZ9"
+                    id: "sc_01JBBS0AGHZYVAGT4AR4REFQES"
                 }
             ],
             options: productsOption.map(opt => ({
@@ -262,13 +274,22 @@ const Form = () => {
             }
         };
 
-      const response =  await fetch("http://localhost:9000/store/custom", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token: authToken, data: formData }),
-        });
+    if(id){
+      const res = await axios.post(`http://localhost:9000/admin/products/${id}`,{title:'bhx'},{
+        headers: {
+          "Authorization": `Bearer ${authToken}`
+        }
+      });
+
+      return
+    }
+    const response =  await fetch("http://localhost:9000/store/custom", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token: authToken, data: formData }),
+    });
         console.log('Response:', response.data);
         console.log('Form Data:', formData);
     };
@@ -301,7 +322,7 @@ const Form = () => {
 
     const getAuthorizationToken = async()=> {
       try {
-        const response = await fetch("https://api-mzml.ovooro.com/admin/auth/token", {
+        const response = await fetch("http://localhost:9000/admin/auth/token", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -347,7 +368,8 @@ const Form = () => {
 
     return (
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+  <Layout>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="bg-white shadow-lg rounded-xl p-6 space-y-6 border border-gray-100">
@@ -388,12 +410,19 @@ const Form = () => {
       </div>
     </button>
           <div className="flex justify-end">
-            <button 
+          {
+            id ? (  <button 
+              type="submit" 
+              className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+            >
+              Update Form
+            </button>):(  <button 
               type="submit" 
               className="px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg font-medium"
             >
               Submit Form
-            </button>
+            </button>)
+          }
           </div>
         </form>
       </div>
@@ -402,6 +431,8 @@ const Form = () => {
         <Modal showModal ={showModal}handleVariantChange ={handleVariantChange} handleVariantOptions ={handleVariantOptions} setVariantPrice ={setVariantPrice}setVariantRegion ={setVariantRegion} showStock ={showStock} showShipping={showShipping} setShowModal ={setShowModal} newVariant={newVariant} productsOption={productsOption} variantPrice={variantPrice} variantRegion={variantRegion} regions={regions} stock={stock} shipping={shipping} addVariant={addVariant}/>
       }
     </div>
+
+  </Layout>
     
 
     );
